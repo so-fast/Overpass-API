@@ -11,7 +11,7 @@ services:
     # uncomment if you want to build the image yourself
     # build: .
     ports:
-      - 8085:80
+      - 8050:80
     volumes:
       # use a docker managed volume
       - ./data/osm:/db
@@ -20,7 +20,7 @@ services:
       - OVERPASS_MODE=init
       - OVERPASS_PLANET_URL=http://download.geofabrik.de/africa/nigeria-latest.osm.bz2
       - OVERPASS_DIFF_URL=http://download.openstreetmap.fr/replication/africa/nigeria/minute/
-      # - OVERPASS_UPDATE_SLEEP=3600
+      - OVERPASS_UPDATE_SLEEP=3600
       - OVERPASS_USE_AREAS=false
     healthcheck:
       test:
