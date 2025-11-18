@@ -4,20 +4,18 @@ volumes:
 version: "3.8"
 services:
   overpass:
-    # specify the image here
-    image: wiktorn/overpass-api:0.7.56.9
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: overpass
     restart: always
-    # uncomment if you want to build the image yourself
-    # build: .
     ports:
       - 8050:80
     volumes:
-      # use a docker managed volume
-      - ./data/osm:/db
+      - ./overpass-db:/db
     environment:
       - OVERPASS_META=yes
-      - OVERPASS_MODE=init
+      - OVERPASS_MODE=serve
       - OVERPASS_PLANET_URL=http://download.geofabrik.de/africa/nigeria-latest.osm.bz2
       - OVERPASS_DIFF_URL=http://download.openstreetmap.fr/replication/africa/nigeria/minute/
       - OVERPASS_UPDATE_SLEEP=3600

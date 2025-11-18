@@ -1,0 +1,48 @@
+name: Overpass Production CI
+
+on:
+  pull_request:
+    branches:
+      - master
+    # paths-ignore: ["docs/**"]
+
+  push:
+    branches:
+      - master
+    # paths-ignore: ["docs/**"]
+
+concurrency:
+  group: ${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: master
+    if: ${{ github.event_name == 'push' }} # will be fired if the trigger event is a push event.
+
+    steps:
+      - name: Checkout Code Repository
+        uses: actions/checkout@v3
+
+      - name: Copy repo files to server
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.PROD_SERVER_HOST }}
+          username: ${{ secrets.PROD_SERVER_USERNAME }}
+          key: ${{ secrets.PROD_SERVER_SSH_KEY }}
+          port: 22
+          source: "."
+          target: "~/overpass-api"
+
+      - name: Build and Deploy the Stack
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.PROD_SERVER_HOST }}
+          username: ${{ secrets.PROD_SERVER_USERNAME }}
+          key: ${{ secrets.PROD_SERVER_SSH_KEY }}
+          port: 22
+          script: |
+            cd ~/overpass-api
+            docker compose down
+            docker compose up -d  --no-deps --build --force-recreate --remove-orphans
